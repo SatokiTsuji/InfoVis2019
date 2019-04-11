@@ -1,0 +1,40 @@
+<!DOCTYPE html> 
+<html>
+  <head>
+    <title>W02: Task 02</title>
+  </head>
+  <body>
+    <input type = "tel", id="x0">x0<BR>
+    <input type = "tel", id="y0">y0<BR>
+    <input type = "tel", id="z0">z0<BR>
+    <input type = "tel", id="x1">x1<BR>
+    <input type = "tel", id="y1">y1<BR>
+    <input type = "tel", id="z1">z1<BR>
+    <input type = "tel", id="x2">x2<BR>
+    <input type = "tel", id="y2">y2<BR>
+    <input type = "tel", id="z2">z2<BR>
+    <input type = "button", value = "calc", onclick="CalcTriangle();">
+    <script src = "vec3.js"></script>
+    <script src = "areaoftriangle.js"></script>
+    <script>
+      function CalcTriangle()
+      {
+        var x0 = document.getElementById("x0").value;
+        var y0 = document.getElementById("y0").value;
+        var z0 = document.getElementById("z0").value;
+        var x1 = document.getElementById("x1").value;
+        var y1 = document.getElementById("y1").value;
+        var z1 = document.getElementById("z1").value;
+        var x2 = document.getElementById("x2").value;
+        var y2 = document.getElementById("y2").value;
+        var z2 = document.getElementById("z2").value;
+        var v0 = [x0,y0,z0];
+        var v1 = [x1,y1,z1];
+        var v2 = [x2,y2,z2];
+        var tag = new Triangle(v0,v1,v2);
+        var S = tag.area(v0,v1,v2);
+        document.write("S = ",S);
+      }
+    </script>
+  </body>
+</html>
