@@ -1,18 +1,8 @@
 function Isosurfaces( volume, isovalue )
 {
     var geometry = new THREE.Geometry();
+    var material = new THREE.MeshLambertMaterial();
     
-    var material = new THREE.ShaderMaterial({
-        vertexColors: THREE.VertexColors,
-        vertexShader: document.getElementById('phong.vert').text,
-        fragmentShader: document.getElementById('phong.frag').text,
-        
-        uniforms: {
-            light_position: { type: 'v3', value: light.position },
-            camera_position: { type: 'v3', value: camera.position}
-        }
-    });
-
     material.vertexColors = THREE.VertexColors;
 
     // Create color map
