@@ -1,0 +1,170 @@
+<html>
+    <head>
+	<title>W09: Task 03</title>
+    </head>
+    <body style="margin:0">
+	<script src="three.min.js"></script>
+	<script src="TrackballControls.js"></script>
+	<script src="http://threejs.org/examples/js/math/Lut.js"></script>
+	<script src="http://naohisas.github.io/KVS.js/Build/KVS.min.js"></script>
+	<script src="http://naohisas.github.io/KVS.js/Build/KVS2THREE.min.js"></script>
+	<script src="http://naohisas.github.io/KVS.js/Source/KVSLobsterData.js"></script>
+	<script src="Bounds.js"></script>
+	<script src="Lut.js"></script>
+	<script src="Isosurfaces03.js"></script>
+	<script src="w09_main.js"></script>
+
+	
+	<div id="display" style="width: 50%; float: left;"></div>
+	<div id="controller" style="width:50%; float:left;">
+		
+		
+		<font size="5">&emsp;User Interface</font>
+		<br>
+		<br>
+		<!-- add RGB slider -->
+		&emsp;RGB : 
+		<input type="range" min="1" max="255" step="1" value="128" id="colors"/>
+		<span id="value">128</span>
+		<button id="change-colors-button" style="font-family:Arial;">apply</button>
+		<br>
+		<!-- add isovalue change slider -->
+		&emsp;isovalue : 
+		<input type="range" min="1" max="255" step="1" value="128" id="isovalue"/>
+		<span id="value2">128</span>
+		<button id="change-isovalue-button" style="font-family:Arial;">apply</button>
+		<br>
+		<!-- add shader button -->
+		&emsp;shader : 
+		<input type="button" value="gouraud" id="gouraud" >
+		<input type="button" value="phong" id="phong" >
+
+		<br>
+		<br>
+		<font size="5">&emsp;Summary</font>
+		<br>
+		<pre>  3D visualization volume rendering of LobsterData<br>
+  About UI :<br>
+  You can change the values(1-255) of color and isovalue by dragging the sliders,<br>
+  you can also choose the type of shading by pushing each shading button.<br>
+  When the button is pressed, the previous object is removed from scene and then the new object is added to the scene.<br>
+  Visualization techniques :<br>
+  algorithm - Marching cubes<br>
+  shading - phong shading or gouraud shading<br>
+  color map - rainbow color map</pre>
+
+	</div>
+
+
+	<!-- display current value of sliders -->
+	<script>
+		var elem = document.getElementById('colors');
+		var target = document.getElementById('value');
+		var rangeValue = function (elem, target) {
+		  return function(evt){
+			target.innerHTML = elem.value;
+		  }
+		}
+		elem.addEventListener('input', rangeValue(elem, target));
+	</script>
+
+	<script>
+		var elem = document.getElementById('isovalue');
+		var target = document.getElementById('value2');
+		elem.addEventListener('input', rangeValue(elem, target));
+	</script>
+
+
+	<!-- phong shading -->
+	<script type="x-shader/x-vertex" id="phong.vert">
+		varying vec3 point_color;
+		varying vec4 point_position;
+		varying vec3 normal_vector;
+
+	 	void main(){
+            point_color = color;
+			point_position = modelViewMatrix * vec4( position, 1.0 );
+			normal_vector = normalMatrix * normal;
+	   	 	gl_Position = projectionMatrix * point_position;
+		}
+	</script>
+
+	<script type="x-shader/x-fragment" id="phong.frag">
+		varying vec3 point_color;
+		varying vec4 point_position;
+		varying vec3 normal_vector;
+        uniform vec3 light_position;
+        uniform vec3 camera_position;
+        
+        vec3 PhongReflection( vec3 C, vec3 L, vec3 N, vec3 V ){
+            float ka = 0.3;
+            float kd = 0.5;
+            float ks = 0.8;
+            float n = 50.0;
+    
+            vec3 R = reflect( -L, N );
+            float dd = max( dot( N, L ), 0.0 );
+            float ds = pow( max( dot( R, V ), 0.0 ), n );
+            if ( dd <= 0.0 ) { ds = 0.0; }
+    
+            float Ia = ka;
+            float Id = kd * dd;
+            float Is = ks * ds;
+            return C * ( Ia + Id + Is );
+        }
+
+	  	void main(){
+	        vec3 C = point_color;
+            vec3 L = normalize( light_position - point_position.xyz );
+            vec3 N = normalize( normal_vector );
+            vec3 V = normalize( camera_position - point_position.xyz );
+        
+            vec3 shaded_color = PhongReflection( C, L, N, V );
+            gl_FragColor = vec4( shaded_color, 1.0 );
+	 	}
+	</script>
+
+
+	<!-- gouraud shading -->
+	<script type="x-shader/x-fragment" id="gouraud.frag">
+		varying vec3 point_color;
+		void main()
+		{
+		gl_FragColor = vec4( point_color, 1.0 );
+		}
+	</script>
+
+	<script type="x-shader/x-vertex" id="gouraud.vert">
+		varying vec3 point_color;
+		varying vec4 point_position;
+		varying vec3 normal_vector;
+		uniform vec3 light_position;
+		
+		vec3 LambertianReflection( vec3 C, vec3 L, vec3 N )
+		{
+		float ka = 0.4;
+		float kd = 0.6;
+		float dd = max( dot( N, L ), 0.0 );
+		float Ia = ka;
+		float Id = kd * dd;
+		return C * ( Ia + Id );
+		}
+
+		void main()
+		{
+		point_position = modelViewMatrix * vec4( position, 1.0 );
+		normal_vector = normalMatrix * normal;
+		vec3 C = color;
+		vec3 L = normalize( light_position - point_position.xyz );
+		vec3 N = normalize( normal_vector );
+		point_color = LambertianReflection( C, L, N );
+		gl_Position = projectionMatrix * point_position;
+		}
+		</script>
+
+
+	<script>
+	 main();
+	</script>
+    </body>
+</html>
